@@ -2,20 +2,27 @@ import hashlib
 import os
 from random import choice
 import string
-from flask import Flask, request,render_template_string, session
+from flask import Flask, request,render_template_string, session, flash, redirect, url_for
 from flasgger import Swagger
-from config import Config
+from core.database import DataBase
 
-app = Flask(__name__)
-app.config.from_object(Config)
+#from sqlalchemy.sql import func
+from flask_migrate import Migrate
+from core import app, db
+#from database import DataBase,db
+
+
+
+#db.init_app(app)
+#migrate = Migrate(app, db)
 
 
 # We limit the hash size to 8
 HASH_SIZE = 8
-base = "https://shortyurl/"
+base = "https://smallurl/"
 
 # We start with a simple db as a Hashmap/dictionary
-db = {}
+#db = {}
 
 @app.route("/about")
 def about():
@@ -66,7 +73,12 @@ form_template = """
 def index():
     short_url = None
     if request.method=="POST":
-        long_url= request.form['long_url']
+        long_url = request.form.get('long_url')  # Retrieve the URL from the form       
+        if not long_url:
+            flash('The URL is required!')
+            return redirect(url_for('index'))
+        
+        
         user_id= generate_short_id(8)
         short_url= shorten_url(user_id, long_url) 
     return render_template_string(form_template, short_url=short_url)
@@ -74,19 +86,32 @@ def index():
 
 def shorten_url(user_id, long_url):
     hash_ = hashing_function(user_id, long_url)  # Get the hash
+    #Old db( dictionary)
+    #if short_url not in db:
+    #    db[short_url] = {"long_url": long_url, "user_id": user_id}  # Store the mapping as a dictionary
+    
+    existing_url = DataBase.query.filter_by(short_id=hash_).first()
+    if existing_url:
+        return base + existing_url.short_id
+
     short_url = base + hash_  # Create the short URL
 
-    if short_url not in db:
-        db[short_url] = {"long_url": long_url, "user_id": user_id}  # Store the mapping as a dictionary
+    # Otherwise, store the new URL in the database
+    new_entry = DataBase(long_url=long_url, short_id=hash_, user_id=user_id)
+    db.session.add(new_entry)
+    db.session.commit()
 
     return short_url
 
 def get_originalUrl(short_url):
     entry = db.get(short_url)  # Look up the original URL in the db
     if entry:
-        return entry["long_url"], entry["user_id"]  # Return both the original URL and user ID
-    return None, None
+        return entry["long_url"] #, entry["user_id"]  # Return both the original URL and user ID
+    else:
+        flash('Invalid URL')
+        return redirect(url_for('index'))
 
+"""
 def main():
     session['user_id'] = generate_short_id(8)
     long_url = "https://github.com/Yhabib05/url-shortener.git"
@@ -99,6 +124,7 @@ def main():
     original_url, retrieved_user_id = get_originalUrl(short_url)
     print("Original URL:", original_url)
     print("User ID:", retrieved_user_id)
+"""
 
 if __name__ == "__main__":
     app.run(debug=True)
