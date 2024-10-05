@@ -1,11 +1,23 @@
+"""
+add sessions :      https://testdriven.io/blog/flask-sessions/
+
+https://medium.com/@sagar.pndt305/mastering-real-time-data-streaming-with-kafka-and-python-e15f116798de
+https://medium.com/@sagar.pndt305/linkovation-designing-a-python-powered-url-shortener-system-478c82be30a7
+https://archive.is/KqBDJ#selection-599.0-609.159
+https://www.freecodecamp.org/news/python-tutorial-how-to-create-a-url-shortener-using-flask/
+
+"""
+
 import hashlib
 import os
 from random import choice
 import string
 from flask import Flask, request,render_template_string, session
 from flasgger import Swagger
+from config import Config
 
 app = Flask(__name__)
+app.config.from_object(Config)
 
 
 # We limit the hash size to 8
@@ -34,7 +46,9 @@ def generate_salt():
 #generate id
 def generate_short_id(num_of_chars: int):
     """Function to generate short_id of specified number of characters"""
-    return ''.join(choice(string.ascii_letters+string.digits) for _ in range(num_of_chars))
+    if 'user_id' not in session:
+        session['user_id'] = ''.join(choice(string.ascii_letters+string.digits) for _ in range(num_of_chars))
+    return session['user_id']
 
 # Generate a unique shortened URL for each combination of user ID and original URL.
 def hashing_function(user_id, long_url):
@@ -90,11 +104,11 @@ def get_originalUrl(short_url):
     return None, None
 
 def main():
-    user_id = generate_short_id(8)
+    session['user_id'] = generate_short_id(8)
     long_url = "https://github.com/Yhabib05/url-shortener.git"
     
     # Shorten the URL
-    short_url = shorten_url(user_id, long_url)
+    short_url = shorten_url(session['user_id'], long_url)
     print("Shortened URL:", short_url)
     
     # Retrieve the original URL and user ID
@@ -103,4 +117,5 @@ def main():
     print("User ID:", retrieved_user_id)
 
 if __name__ == "__main__":
-    main()
+    app.run(debug=True)
+
