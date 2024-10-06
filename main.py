@@ -44,40 +44,121 @@ def hashing_function(user_id, long_url):
 # HTML template for input form
 form_template = """
 <!DOCTYPE html>
-<html>
-    <body>
-        <h2>URL Shortener</h2>
-        <form method="POST">
-            <label for="url">Enter URL to shorten:</label><br><br>
-            <input type="text" id="url" name="long_url" required><br><br>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h2 {
+            color: #333;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 300px;
+            margin: 10px;
+        }
+        label {
+            margin: 10px 0;
+            display: block;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+        p {
+            color: #555;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            color: red;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .footer a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h2>A ready to use URL Shortener</h2>
+    <div class="container">
+      <h2>URL Shortener</h2>
+          <form method="POST">
+            <label for="url">Enter URL to shorten:</label>
+            <input type="text" id="url" name="long_url" required>
             <input type="submit" name="action" value="Shorten URL">
         </form>
         {% if short_url %}
             <p>Shortened URL: <a href="{{ short_url }}">{{ short_url }}</a></p>
         {% endif %}
+    </div>
 
+    <div class="container">
         <h2>URL Retrieval</h2>
         <form method="POST">
-        <label for="url">Enter URL to shorten:</label><br><br>
-            <input type="text" id="url" name="short_url_1" required><br><br>
+            <label for="url">Enter Short URL:</label>
+            <input type="text" id="url" name="short_url_1" required>
             <input type="submit" name="action" value="Retrieve URL">
         </form>
         {% if long_url_1 %}
-            <p>Shortened URL: <a href="{{ long_url_1 }}">{{ long_url_1 }}</a></p>
-        {% endif %}  
+            <p>Original URL: <a href="{{ long_url_1 }}">{{ long_url_1 }}</a></p>
+        {% endif %}
+    </div>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul>
-                {% for message in messages %}
-                    <li>{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-    </body>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <div class="footer">
+        <p>Check out my Github on <a href="https://github.com/Yhabib05/" target="_blank">GitHub</a>.</p>
+    </div>
+</body>
 </html>
 """
+
 
 
 
