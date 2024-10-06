@@ -9,7 +9,9 @@ from library import app, db
 
 # We limit the hash size to 8
 HASH_SIZE = 8
-base = "https://smallurl/"
+base= "http://127.0.0.1:5000/"
+# Input Your customized base Here:
+#base = "https://smallurl/"
 
 # We start with a simple db as a Hashmap/dictionary
 #db = {}
@@ -133,9 +135,16 @@ def get_originalUrl(short_url):
     else:
         flash('Invalid URL')
         return redirect(url_for('index'))
-    
-def redirectUrl():
-    return
+
+@app.route("/<hash_url>")
+def redirectUrl(hash_url):
+    #hash_=short_url.split(base)[1]
+    entry = DataBase.query.filter_by(hash_url=hash_url).first()
+    if entry:
+        return redirect(entry.long_url)
+    else:
+        flash('Invalid URL')
+        return redirect(url_for('index'))
 
         
 
