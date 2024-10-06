@@ -10,3 +10,5 @@ app.config.from_object(Config)
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+from library import database  # Ensure database is imported for migrations
